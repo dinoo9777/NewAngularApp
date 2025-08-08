@@ -1,6 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, Input} from '@angular/core';
 import { ProductsService, Product, Category } from '../../services/products.service';
 import { CurrencyPipe,NgClass} from '@angular/common';
+import { addItem , CartItem} from '../../store/cart/cart.action';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-products-component',
@@ -33,7 +35,7 @@ import { CurrencyPipe,NgClass} from '@angular/common';
               <div class="product-details">
                 <span [style]="{ 'background': 'gray', 'color': 'white','font-size': '0.7em','padding': '0.1em 0.2em','border-radius': '0.2em','margin-bottom': '0.3em',display: 'inline-block' }">{{ product.category }}</span>
                 <p>Price: {{ product.price | currency }}
-                  <button class="add-to-cart" style="width:100%;padding: 0.2em 0.5em;background: black;color: white;border: none;border-radius: 0.2em;cursor: pointer;margin-top: 0.5em;">Buy Now</button>
+                  <button (click)="addToCart(product)" class="add-to-cart" style="width:100%;padding: 0.2em 0.5em;background: black;color: white;border: none;border-radius: 0.2em;cursor: pointer;margin-top: 0.5em;">Buy Now</button>
                 </p>
               </div>
             </div>
@@ -46,12 +48,14 @@ import { CurrencyPipe,NgClass} from '@angular/common';
   styleUrls: ['./products-component.css']
 })
 export class ProductsComponent {
+  @Input() item!: CartItem;
+
   isFiltered = signal(false);
   isFilteredCategory = signal<string | null>(null);
   products = signal<Product[]>([]);
   categories = signal<any[]>([]);
   productsService = inject(ProductsService);
-  constructor() {
+  constructor( private store: Store) {
     console.log('ProductsComponent initialized');
   }
 
@@ -88,5 +92,11 @@ export class ProductsComponent {
       this.isFilteredCategory.set(null);
       this.products.set(products);
     });
+  }
+  addToCart(product: Product) {
+    console.log('Adding product to cart:', product);
+    this.store.dispatch(addItem({ item: { ...product, quantity: 1 } }));
+    // Logic to add the product to the cart
+    // This could involve dispatching an action to the store or calling a service method
   }
 }
