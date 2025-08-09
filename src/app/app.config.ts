@@ -1,7 +1,7 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { routes } from './app.routes';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes, {useHash:true}),
+    provideRouter(routes), { provide: LocationStrategy, useClass: HashLocationStrategy },
     provideHttpClient(),
     provideStore({ 
       counter: counterReducer , 
